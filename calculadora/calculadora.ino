@@ -1,4 +1,7 @@
+#include <LiquidCrystal.h>
 #include <StackArray.h>
+
+LiquidCrystal lcd(0, 1, 2, 7, 12, 13);
 
 char keymap[4][4] =
 {
@@ -11,6 +14,7 @@ char keymap[4][4] =
 StackArray <int> stack;
 
 int displayValue = 0;
+bool isDisplayingResult = false;
 
 void setup() {
   //Pinos ligados aos pinos 1, 2, 3 e 4 do teclado - Linhas
@@ -25,9 +29,16 @@ void setup() {
   pinMode(10, INPUT);
   pinMode(11, INPUT);
   
-  Serial.begin(9600);
-  Serial.println("Aguardando acionamento das teclas...");
-  Serial.println();
+  //  Serial.begin(9600);
+    // Cabecalho do LCD
+ // Serial.println("Inicializando display lcd... ");
+  lcd.begin(16, 2);
+  lcd.setCursor(0,1);
+ // Serial.println("ok!.");
+  
+
+ // Serial.println("Aguardando acionamento das teclas...");
+  //Serial.println();
 
 }
 
@@ -74,12 +85,13 @@ void loop() {
 }
 
 void printDisplay(){
-  Serial.print("Display: ");
-  Serial.print(displayValue);
-  Serial.println();
+  lcd.clear();
+  lcd.setCursor(0,1);
+  lcd.print(String(displayValue));
 }
 
 void numberInput(int input){
+  if (isDisplayingResult) displayValue = 0;
   displayValue = 10*displayValue + input;
   printDisplay();
 }
@@ -98,16 +110,18 @@ void addFromStack(){
   stack.push(soma);
   displayValue = soma;
   printDisplay();
+  isDisplayingResult = true;
 }
 
 void subFromStack(){
   int val1 = stack.pop();
   int val2 = stack.pop();
   
-  int sub = val1 - val2;
+  int sub = val2 - val1;
   stack.push(sub);
   displayValue = sub;
   printDisplay();
+  isDisplayingResult = true;
 }
 
 void multFromStack(){
@@ -118,16 +132,18 @@ void multFromStack(){
   stack.push(mult);
   displayValue = mult;
   printDisplay();
+  isDisplayingResult = true;
 }
 
 void divideFromStack(){
   int val1 = stack.pop();
   int val2 = stack.pop();
   
-  int div = val1/val2;
+  int div = val2/val1;
   stack.push(div);
   displayValue = div;
   printDisplay();
+  isDisplayingResult = true;
 }
 
 void handle_input(char input){
